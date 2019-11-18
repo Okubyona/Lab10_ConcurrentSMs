@@ -48,7 +48,7 @@ int main(void) {
 			state = blinkLED(state);
 			bPeriod = 0;
 		}
-
+		
 		if (thPeriod == 1000) {
 			sState = threeLED(sState);
 			thPeriod = 0;
@@ -91,47 +91,47 @@ int blinkLED (int state) {
 		break;
 	}
 
-
+	
 	return state;
 }
 
 int threeLED(int state) {
-
+	
 	switch (state) {
 		case seqInit:
 			state = seq0;
 			break;
-
+			
 		case seq0:
 			state = seq1;
 			break;
-
+			
 		case seq1:
 		state = seq2;
 		break;
-
+		
 		case seq2:
 		state = seq0;
 		break;
-
+		
 	}
-
+	
 	switch (state) {
 		case seqInit: break;
-
+		
 		case seq0:
 			tmpA = 0x01;
 			break;
-
+			
 		case seq1:
 			tmpA = 0x02;
 			break;
-
+			
 		case seq2:
 			tmpA = 0x04;
 			break;
 	}
-
+	
 	return state;
 }
 
