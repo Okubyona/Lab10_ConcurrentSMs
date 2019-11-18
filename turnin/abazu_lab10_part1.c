@@ -32,40 +32,36 @@ ISR(TIMER1_COMPA_vect) {
 int blinkLED(int state);
 int threeLED(int state);
 int combineSM(int state);
-unsigned char tmpA;
+static unsigned char tmpA;
 static unsigned char tmpB;
 
 int main(void) {
 	DDRB = 0xFF; PORTB = 0x00;
 
-
+	TimerOn();
+	TimerSet(100);
 
 	States state = bInit;
 	SeqStates sState = seqInit;
 	CombineStates cState = combine;
-	const unsigned short timerPeriod = 50;
-	unsigned short bElapsedTime = 1000;
-	unsigned short thElapsedTime = 300;
-
-	TimerOn();
-	TimerSet(timerPeriod);
+	unsigned short bPeriod = 1000;
+	unsigned short thPeriod = 1000;
 
 	while(1) {
-		if (bElapsedTime >= 1000) {
+		if (bPeriod == 1000) {
 			state = blinkLED(state);
-			bElapsedTime = 0;
+			bPeriod = 0;
 		}
 
-		if (thElapsedTime >= 300) {
+		if (thPeriod == 1000) {
 			sState = threeLED(sState);
-			thElapsedTime = 0;
+			thPeriod = 0;
 		}
-		//PORTB = tmpB | tmpA;
 		cState = combineSM(cState);
 		while(!TimerFlag) {}
 		TimerFlag = 0;
-		bElapsedTime += timerPeriod;
-		thElapsedTime += timerPeriod;
+		bPeriod += 100;
+		thPeriod += 100;
 	}
 
 	return 0;
@@ -147,9 +143,11 @@ int combineSM(int state) {
 	switch (state) {
 		case combine:
 		state = combine;
-		PORTB = tmpB | tmpA;
+		tmpB = tmpA | tmpB;
 		break;
 	}
+
+	PORTB = tmpB;
 	return state;
 }
 
