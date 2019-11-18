@@ -154,7 +154,7 @@ int threeLED(int state) {
 }
 
 int speaker(int state) {
-	unsigned char A2 = ~PINA;
+	unsigned char A2 = ~PINA;	
 
 	switch (state) {
 		case low:
