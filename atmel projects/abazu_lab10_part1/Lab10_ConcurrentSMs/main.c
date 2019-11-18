@@ -9,6 +9,8 @@ typedef enum States {bInit, On, Off} States;
 
 typedef enum SeqStates {seqInit, seq0, seq1, seq2} SeqStates;
 
+typedef enum CombineStates {combine} CombineStates;
+
 volatile unsigned char TimerFlag = 0; // TimerISR() sets this to 1. C programmer should clear to 0.
 
 unsigned long _avr_timer_M = 1; // Start count from here, down to 0. Default 1 ms.
@@ -29,6 +31,7 @@ ISR(TIMER1_COMPA_vect) {
 
 int blinkLED(int state);
 int threeLED(int state);
+int combineSM(int state);
 static unsigned char tmpA;
 static unsigned char tmpB;
 
@@ -40,6 +43,7 @@ int main(void) {
 
 	States state = bInit;
 	SeqStates sState = seqInit;
+	CombineStates cState = combine;
 	unsigned short bPeriod = 1000;
 	unsigned short thPeriod = 1000;
 
@@ -48,12 +52,12 @@ int main(void) {
 			state = blinkLED(state);
 			bPeriod = 0;
 		}
-		
+
 		if (thPeriod == 1000) {
 			sState = threeLED(sState);
 			thPeriod = 0;
 		}
-		PORTB = tmpA | tmpB;
+		cState = combineSM(cState);
 		while(!TimerFlag) {}
 		TimerFlag = 0;
 		bPeriod += 100;
@@ -91,47 +95,59 @@ int blinkLED (int state) {
 		break;
 	}
 
-	
+
 	return state;
 }
 
 int threeLED(int state) {
-	
+
 	switch (state) {
 		case seqInit:
-			state = seq0;
-			break;
-			
+		state = seq0;
+		break;
+
 		case seq0:
-			state = seq1;
-			break;
-			
+		state = seq1;
+		break;
+
 		case seq1:
 		state = seq2;
 		break;
-		
+
 		case seq2:
 		state = seq0;
 		break;
-		
+
 	}
-	
+
 	switch (state) {
 		case seqInit: break;
-		
+
 		case seq0:
-			tmpA = 0x01;
-			break;
-			
+		tmpA = 0x01;
+		break;
+
 		case seq1:
-			tmpA = 0x02;
-			break;
-			
+		tmpA = 0x02;
+		break;
+
 		case seq2:
-			tmpA = 0x04;
-			break;
+		tmpA = 0x04;
+		break;
 	}
-	
+
+	return state;
+}
+
+int combineSM(int state) {
+	switch (state) {
+		case combine:
+		state = combine;
+		tmpB = tmpA | tmpB;
+		break;
+	}
+
+	PORTB = tmpB;
 	return state;
 }
 
